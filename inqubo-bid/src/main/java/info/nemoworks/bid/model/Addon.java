@@ -1,4 +1,4 @@
-package info.nemoworks.bid.domain;
+package info.nemoworks.bid.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
