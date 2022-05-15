@@ -1,11 +1,11 @@
 package info.nemoworks.inqubo;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.util.UUID;
 
+@Data
 public class Aggregate {
 
-    @Getter
     private final String id = UUID.randomUUID().toString();
 }
