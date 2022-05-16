@@ -14,21 +14,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BidProcess extends AbstractProcess {
+public class BidProcess extends AbstractProcess<Bid> {
 
     private static final String SCXML_MODEL = "scxml/bidchart.xml";
 
-    public BidProcess(URL scxmlDocument) throws ModelException {
-        super(scxmlDocument);
+    public BidProcess(URL scxmlDocument, Bid bid) throws ModelException {
+        super(scxmlDocument, bid);
     }
 
-    private Bid bid;
-
     @Override
-    public List<Task> getTasks(String state) {
+    public List<Task<? extends Bid>> getTasks(String state) {
         switch (state) {
             case "created":
-                return List.of(Task.builder().subject("A").object(bid).command(null).query(new EditingQuery(bid)).build());
+                return List.of(Task.<Bid>builder().subject("A").object(getObj()).command(null).query(new EditingQuery(getObj())).build());
             case "editing":
                 ;
             case "reviewing":
@@ -41,6 +39,5 @@ public class BidProcess extends AbstractProcess {
         return null;
     }
 
-    private Map<String, Task> tasks = new HashMap<>();
 
 }

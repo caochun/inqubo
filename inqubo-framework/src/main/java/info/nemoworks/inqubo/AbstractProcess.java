@@ -22,12 +22,18 @@ public abstract class AbstractProcess<T extends Aggregate> {
     private SCXMLExecutor engine;
     private Log log;
 
+    private T obj;
 
-    public AbstractProcess(URL scxmlDocument) throws ModelException {
-        this(scxmlDocument, new JexlContext(), new JexlEvaluator());
+    public T getObj() {
+        return this.obj;
     }
 
-    private AbstractProcess(URL scxmlDocument, Context rootCtx, Evaluator evaluator) throws ModelException {
+
+    public AbstractProcess(URL scxmlDocument, T obj) throws ModelException {
+        this(scxmlDocument, new JexlContext(), new JexlEvaluator(), obj);
+    }
+
+    private AbstractProcess(URL scxmlDocument, Context rootCtx, Evaluator evaluator, T obj) throws ModelException {
         this.log = LogFactory.getLog(this.getClass());
 
         try {
@@ -36,6 +42,7 @@ public abstract class AbstractProcess<T extends Aggregate> {
             this.logError(e);
         }
 
+        this.obj = obj;
         this.initialize(this.stateMachine, rootCtx, evaluator);
     }
 
@@ -109,9 +116,9 @@ public abstract class AbstractProcess<T extends Aggregate> {
 
     }
 
-    List<Task<T>> pendingTasks;
+    List<Task<? extends T>> pendingTasks;
 
-    List<Task<T>> getPendingTask(String subject) {
+    List<Task<? extends T>> getPendingTask(String subject) {
         return pendingTasks.stream().filter(task -> task.getSubject().equals(subject)).collect(Collectors.toList());
     }
 
@@ -121,7 +128,7 @@ public abstract class AbstractProcess<T extends Aggregate> {
         return (pendingTasks != null);
     }
 
-    public abstract List<Task<T>> getTasks(String state);
+    public abstract List<Task<? extends T>> getTasks(String state);
 
 
 }
