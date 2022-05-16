@@ -2,23 +2,22 @@ package info.nemoworks.inqubo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.scxml2.Context;
-import org.apache.commons.scxml2.Evaluator;
-import org.apache.commons.scxml2.SCXMLExecutor;
-import org.apache.commons.scxml2.TriggerEvent;
+import org.apache.commons.scxml2.*;
 import org.apache.commons.scxml2.env.SimpleDispatcher;
 import org.apache.commons.scxml2.env.SimpleErrorReporter;
 import org.apache.commons.scxml2.env.jexl.JexlContext;
 import org.apache.commons.scxml2.env.jexl.JexlEvaluator;
 import org.apache.commons.scxml2.io.SCXMLReader;
-import org.apache.commons.scxml2.model.ModelException;
-import org.apache.commons.scxml2.model.SCXML;
+import org.apache.commons.scxml2.model.*;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
-public abstract class AbstractProcess {
+public abstract class AbstractProcess<T extends Aggregate> {
     private SCXML stateMachine;
     private SCXMLExecutor engine;
     private Log log;
@@ -44,11 +43,26 @@ public abstract class AbstractProcess {
     private void initialize(SCXML stateMachine, Context rootCtx, Evaluator evaluator) throws ModelException {
         this.engine = new SCXMLExecutor(evaluator, new SimpleDispatcher(), new SimpleErrorReporter());
         this.engine.setStateMachine(stateMachine);
+        this.engine.addListener(stateMachine, new EntryListener());
         this.engine.setRootContext(rootCtx);
         try {
             this.engine.go();
         } catch (ModelException var5) {
             this.logError(var5);
+        }
+    }
+
+    protected class EntryListener implements SCXMLListener {
+
+
+        public void onEntry(EnterableState entered) {
+            invoke(entered.getId());
+        }
+
+        public void onTransition(TransitionTarget from, TransitionTarget to, Transition transition, String event) {
+        }
+
+        public void onExit(EnterableState exited) {
         }
     }
 
@@ -95,7 +109,19 @@ public abstract class AbstractProcess {
 
     }
 
-    public abstract boolean invoke(String state);
+    List<Task<T>> pendingTasks;
+
+    List<Task<T>> getPendingTask(String subject) {
+        return pendingTasks.stream().filter(task -> task.getSubject().equals(subject)).collect(Collectors.toList());
+    }
+
+
+    public boolean invoke(String state) {
+        pendingTasks = getTasks(state);
+        return (pendingTasks != null);
+    }
+
+    public abstract List<Task<T>> getTasks(String state);
 
 
 }
