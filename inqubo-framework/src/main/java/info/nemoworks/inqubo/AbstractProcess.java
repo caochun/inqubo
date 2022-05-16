@@ -116,19 +116,25 @@ public abstract class AbstractProcess<T extends Aggregate> {
 
     }
 
-    List<Task<? extends T>> pendingTasks;
+    Task<? extends T> pendingTask;
 
-    List<Task<? extends T>> getPendingTask(String subject) {
-        return pendingTasks.stream().filter(task -> task.getSubject().equals(subject)).collect(Collectors.toList());
+    Task<? extends T> getPendingTask(String subject) {
+        return pendingTask;
+    }
+
+    public void taskStatusChanged(Task<? extends T> task) {
+        if (pendingTask.getStatus() == Task.STATUS.COMPLETED) {
+            this.fireEvent(pendingTask.getCommand().getCommandString());
+        }
     }
 
 
     public boolean invoke(String state) {
-        pendingTasks = getTasks(state);
-        return (pendingTasks != null);
+        pendingTask = getTask(state);
+        return (pendingTask != null);
     }
 
-    public abstract List<Task<? extends T>> getTasks(String state);
+    public abstract Task<? extends T> getTask(String state);
 
 
 }
