@@ -5,20 +5,27 @@ import info.nemoworks.bid.service.command.CreateCommand;
 import info.nemoworks.bid.service.command.EditCommand;
 import info.nemoworks.bid.service.command.ReviewCommand;
 import info.nemoworks.bid.service.command.TrackCommand;
-import info.nemoworks.bid.service.query.*;
+import info.nemoworks.bid.service.query.CreatingQuery;
+import info.nemoworks.bid.service.query.EditingQuery;
+import info.nemoworks.bid.service.query.ReviewingQuery;
+import info.nemoworks.bid.service.query.TracingQuery;
 import info.nemoworks.inqubo.AbstractProcess;
 import info.nemoworks.inqubo.Task;
 import org.apache.commons.scxml2.model.ModelException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
+@Component
 public class BidProcess extends AbstractProcess<Bid> {
 
     private static final String SCXML_MODEL = "scxml/bidchart.xml";
 
-    public BidProcess(URL scxmlDocument, Bid bid) throws ModelException {
-        super(scxmlDocument, bid);
+    public BidProcess(@Autowired Bid bid) throws ModelException, MalformedURLException {
+        super(new URL(SCXML_MODEL), bid);
     }
 
     @Override

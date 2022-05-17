@@ -6,6 +6,7 @@ import info.nemoworks.bid.service.query.ReviewingQuery;
 import info.nemoworks.bid.service.query.CreatingQuery;
 import info.nemoworks.bid.service.query.EditingQuery;
 import info.nemoworks.bid.model.Bid;
+import info.nemoworks.bid.service.query.TracingQuery;
 
 public interface BidService {
 
@@ -17,10 +18,12 @@ public interface BidService {
 
     void handleEditCommand(EditCommand command);
 
-    CreatingQuery queryOnCreating(Bid bid);
+    Bid handleCreatingQuery(CreatingQuery creatingQuery);
 
-    EditingQuery queryOnEditing(Bid bid);
+    Bid handleEditingQuery(EditingQuery editingQuery);
 
-    ReviewingQuery queryOnApproving(Bid bid);
+    Bid handleReviewingQuery(ReviewingQuery reviewingQuery);
+
+    Bid handleTracingQuery(TracingQuery tracingQuery);
 
 }
