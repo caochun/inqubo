@@ -10,8 +10,4 @@ public class BidQuery extends Query<Bid> {
         super(bid);
     }
 
-    public static final String APPROVING = "approve";
-    public static final String EDITING = "editing";
-    public static final String CREATING = "created";
-
 }

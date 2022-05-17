@@ -3,19 +3,20 @@ package info.nemoworks.bid.service.command;
 import info.nemoworks.bid.model.Bid;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 public class CreateCommand extends BidCommand {
 
     @Getter
-    @NonNull
-    private final String title;
+    @Setter
+    private String title;
 
     @Getter
-    private final String creator;
+    @Setter
+    private String creator;
 
-    public CreateCommand(@NonNull Bid target, @NonNull String title, String creator) {
+    public CreateCommand(@NonNull Bid target) {
         super(target);
-        this.title = title;
-        this.creator = creator;
+        this.setCommandString("create");
     }
 }

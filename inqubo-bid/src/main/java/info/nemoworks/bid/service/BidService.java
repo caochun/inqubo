@@ -2,7 +2,7 @@ package info.nemoworks.bid.service;
 
 
 import info.nemoworks.bid.service.command.*;
-import info.nemoworks.bid.service.query.ApprovingQuery;
+import info.nemoworks.bid.service.query.ReviewingQuery;
 import info.nemoworks.bid.service.query.CreatingQuery;
 import info.nemoworks.bid.service.query.EditingQuery;
 import info.nemoworks.bid.model.Bid;
@@ -11,18 +11,16 @@ public interface BidService {
 
     void handleCreateCommand(CreateCommand command);
 
-    void handleApproveCommand(ApproveCommand command);
+    void handleReviewCommand(ReviewCommand command);
 
-    void handleCloseCommand(CloseCommand command);
+    void handleTrackCommand(TrackCommand command);
 
-    void handleEditContentCommand(EditContentCommand command);
-
-    void handleAppendAddonCommand(AppendAddonCommand command);
+    void handleEditCommand(EditCommand command);
 
     CreatingQuery queryOnCreating(Bid bid);
 
     EditingQuery queryOnEditing(Bid bid);
 
-    ApprovingQuery queryOnApproving(Bid bid);
+    ReviewingQuery queryOnApproving(Bid bid);
 
 }

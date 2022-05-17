@@ -1,17 +1,17 @@
 package info.nemoworks.bid.process;
 
 import info.nemoworks.bid.model.Bid;
-import info.nemoworks.bid.service.command.EditContentCommand;
+import info.nemoworks.bid.service.command.CreateCommand;
+import info.nemoworks.bid.service.command.EditCommand;
+import info.nemoworks.bid.service.command.ReviewCommand;
+import info.nemoworks.bid.service.command.TrackCommand;
 import info.nemoworks.bid.service.query.*;
 import info.nemoworks.inqubo.AbstractProcess;
 import info.nemoworks.inqubo.Task;
 import org.apache.commons.scxml2.model.ModelException;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BidProcess extends AbstractProcess<Bid> {
 
@@ -22,17 +22,39 @@ public class BidProcess extends AbstractProcess<Bid> {
     }
 
     @Override
-    public List<Task<? extends Bid>> getTasks(String state) {
+    public Task<? extends Bid> getTask(String state) {
         switch (state) {
             case "created":
-                return List.of(Task.<Bid>builder().subject("Creator").object(getObj()).command(null).query(new CreatingQuery(getObj())).build());
+                return Task.<Bid>builder()
+                        .subject("Creator")
+                        .object(getObj())
+                        .expectedCommands(List.of(new CreateCommand(getObj())))
+                        .query(new CreatingQuery(getObj()))
+                        .build();
             case "editing":
-                return List.of(Task.<Bid>builder().subject("Editor").object(getObj()).command(null).query(new EditingQuery(getObj())).build());
+                return Task.<Bid>builder()
+                        .subject("Editor")
+                        .object(getObj())
+                        .expectedCommands(List.of(new EditCommand.SaveCommand(getObj()),
+                                new EditCommand.SubmitCommand(getObj())))
+                        .query(new EditingQuery(getObj()))
+                        .build();
             case "reviewing":
-                return List.of(Task.<Bid>builder().subject("Reviewer").object(getObj()).command(null).query(new ApprovingQuery(getObj())).build());
+                return Task.<Bid>builder()
+                        .subject("Reviewer")
+                        .object(getObj())
+                        .expectedCommands(List.of(new ReviewCommand.ApproveCommand(getObj()),
+                                new ReviewCommand.DisapproveCommand(getObj())))
+                        .query(new ReviewingQuery(getObj())).build();
             case "tracking":
+                return Task.<Bid>builder()
+                        .subject("Tracker")
+                        .object(getObj())
+                        .expectedCommands(List.of(new TrackCommand(getObj()),
+                                new TrackCommand.FinalizeCommand(getObj())))
+                        .query(new TracingQuery(getObj())).build();
             case "closed":
-                return List.of(Task.<Bid>builder().subject("Tracker").object(getObj()).command(null).query(new TracingQuery(getObj())).build());
+                return null;
         }
         return null;
     }

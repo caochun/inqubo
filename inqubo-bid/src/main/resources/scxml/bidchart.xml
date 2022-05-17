@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<scxml xmlns="http://www.w3.org/2005/07/scxml" initial="created" version="1.0">
-    <state id="created">
-        <transition event="process" target="editing"/>
+<scxml xmlns="http://www.w3.org/2005/07/scxml" initial="init" version="1.0">
+    <state id="init">
+        <transition event="create" target="editing"/>
     </state>
     <state id="editing">
         <transition event="submit" target="reviewing"/>

@@ -2,7 +2,7 @@ package info.nemoworks.bid.service;
 
 import info.nemoworks.bid.repository.BidRepository;
 import info.nemoworks.bid.service.command.*;
-import info.nemoworks.bid.service.query.ApprovingQuery;
+import info.nemoworks.bid.service.query.ReviewingQuery;
 import info.nemoworks.bid.service.query.CreatingQuery;
 import info.nemoworks.bid.service.query.EditingQuery;
 import info.nemoworks.bid.model.Addon;
@@ -36,30 +36,29 @@ public class BidServiceImp implements BidService {
 
 
     @Override
-    public void handleApproveCommand(ApproveCommand command) {
+    public void handleReviewCommand(ReviewCommand command) {
         Bid bid = bidRepository.getBid(command.getTarget().getId());
         bid.setApproved(true);
         bidRepository.saveBid(bid);
     }
 
     @Override
-    public void handleCloseCommand(CloseCommand command) {
+    public void handleTrackCommand(TrackCommand command) {
         Bid bid = bidRepository.getBid(command.getTarget().getId());
-        bid.setClosed(true);
+
+        if (command instanceof TrackCommand.FinalizeCommand) {
+            bid.setClosed(true);
+        } else {
+            bid.getAddons().add(new Addon(command.getTarget().getId(), command.getAddon(), command.getTracker()));
+        }
         bidRepository.saveBid(bid);
+
     }
 
     @Override
-    public void handleEditContentCommand(EditContentCommand command) {
+    public void handleEditCommand(EditCommand command) {
         Bid bid = bidRepository.getBid(command.getTarget().getId());
         bid.setContent(new Content(command.getContent(), command.getEditor()));
-        bidRepository.saveBid(bid);
-    }
-
-    @Override
-    public void handleAppendAddonCommand(AppendAddonCommand command) {
-        Bid bid = bidRepository.getBid(command.getTarget().getId());
-        bid.getAddons().add(new Addon(command.getTarget().getId(), command.getAddon(), command.getAuthor()));
         bidRepository.saveBid(bid);
     }
 
@@ -75,8 +74,8 @@ public class BidServiceImp implements BidService {
     }
 
     @Override
-    public ApprovingQuery queryOnApproving(Bid bid) {
-        return new ApprovingQuery(bid);
+    public ReviewingQuery queryOnApproving(Bid bid) {
+        return new ReviewingQuery(bid);
     }
 
 }

@@ -118,14 +118,15 @@ public abstract class AbstractProcess<T extends Aggregate> {
 
     Task<? extends T> pendingTask;
 
-    Task<? extends T> getPendingTask(String subject) {
-        return pendingTask;
-    }
+//    Task<? extends T> getPendingTask(String subject) {
+//        return pendingTask;
+//    }
 
-    public void taskStatusChanged(Task<? extends T> task) {
+    public boolean taskStatusChanged(Task<? extends T> task) {
         if (pendingTask.getStatus() == Task.STATUS.COMPLETED) {
-            this.fireEvent(pendingTask.getCommand().getCommandString());
+            return this.fireEvent(pendingTask.getCompletingCommand().getCommandString());
         }
+        return false;
     }
 
 

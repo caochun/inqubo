@@ -3,6 +3,8 @@ package info.nemoworks.inqubo;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 @Builder
 public class Task<T extends Aggregate> {
@@ -13,23 +15,29 @@ public class Task<T extends Aggregate> {
 
     private String subject;
     private Query<? extends T> query;
-    private Command<? extends T> command = null;
+
+    private List<Command<? extends T>> expectedCommands = null;
+
+    private Command<? extends T> completingCommand = null;
+
     private T object;
 
     private AbstractProcess<T> process;
 
     private STATUS status = STATUS.PENDING;
 
-    public TaskDelegate accept() {
+    public boolean accept() {
+        if (this.status != STATUS.PENDING) return false;
         this.status = STATUS.ACCEPTED;
         process.taskStatusChanged(this);
-        return new TaskDelegate(this);
+        return true;
     }
 
-    public void complete(Command<? extends T> command) {
+    public boolean complete(Command<? extends T> command) {
+        if (!this.expectedCommands.contains(command)) return false;
         this.status = STATUS.COMPLETED;
-        this.command = command;
-        process.taskStatusChanged(this);
+        this.completingCommand = command;
+        return process.taskStatusChanged(this);
     }
 
 }
