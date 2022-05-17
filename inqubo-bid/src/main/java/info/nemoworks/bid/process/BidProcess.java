@@ -24,19 +24,20 @@ public class BidProcess extends AbstractProcess<Bid> {
 
     private static final String SCXML_MODEL = "scxml/bidchart.xml";
 
-    public BidProcess(@Autowired Bid bid) throws ModelException, MalformedURLException {
-        super(new URL(SCXML_MODEL), bid);
+    public BidProcess(Bid bid) throws ModelException {
+        super(BidProcess.class.getClassLoader().getResource(SCXML_MODEL), bid);
     }
 
     @Override
     public Task<? extends Bid> getTask(String state) {
         switch (state) {
-            case "created":
+            case "init":
                 return Task.<Bid>builder()
                         .subject("Creator")
                         .object(getObj())
                         .expectedCommands(List.of(new CreateCommand(getObj())))
                         .query(new CreatingQuery(getObj()))
+                        .process(this)
                         .build();
             case "editing":
                 return Task.<Bid>builder()
@@ -45,6 +46,7 @@ public class BidProcess extends AbstractProcess<Bid> {
                         .expectedCommands(List.of(new EditCommand.SaveCommand(getObj()),
                                 new EditCommand.SubmitCommand(getObj())))
                         .query(new EditingQuery(getObj()))
+                        .process(this)
                         .build();
             case "reviewing":
                 return Task.<Bid>builder()
@@ -52,14 +54,18 @@ public class BidProcess extends AbstractProcess<Bid> {
                         .object(getObj())
                         .expectedCommands(List.of(new ReviewCommand.ApproveCommand(getObj()),
                                 new ReviewCommand.DisapproveCommand(getObj())))
-                        .query(new ReviewingQuery(getObj())).build();
+                        .query(new ReviewingQuery(getObj()))
+                        .process(this)
+                        .build();
             case "tracking":
                 return Task.<Bid>builder()
                         .subject("Tracker")
                         .object(getObj())
                         .expectedCommands(List.of(new TrackCommand(getObj()),
                                 new TrackCommand.FinalizeCommand(getObj())))
-                        .query(new TracingQuery(getObj())).build();
+                        .query(new TracingQuery(getObj()))
+                        .process(this)
+                        .build();
             case "closed":
                 return null;
         }

@@ -15,14 +15,18 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public abstract class AbstractProcess<T extends Aggregate> {
+
+    Logger logger = Logger.getLogger(this.getClass().getName());
+
     private SCXML stateMachine;
     private SCXMLExecutor engine;
     private Log log;
 
-    private T obj;
+    private final T obj;
 
     public T getObj() {
         return this.obj;
@@ -59,14 +63,17 @@ public abstract class AbstractProcess<T extends Aggregate> {
         }
     }
 
+
     protected class EntryListener implements SCXMLListener {
 
 
         public void onEntry(EnterableState entered) {
+            logger.info("Entering state " + entered.getId());
             invoke(entered.getId());
         }
 
         public void onTransition(TransitionTarget from, TransitionTarget to, Transition transition, String event) {
+            logger.info("Triggering transition " + transition.getEvent());
         }
 
         public void onExit(EnterableState exited) {
@@ -118,9 +125,9 @@ public abstract class AbstractProcess<T extends Aggregate> {
 
     Task<? extends T> pendingTask;
 
-//    Task<? extends T> getPendingTask(String subject) {
-//        return pendingTask;
-//    }
+    public Task<? extends T> getPendingTask() {
+        return pendingTask;
+    }
 
     public boolean taskStatusChanged(Task<? extends T> task) {
         if (pendingTask.getStatus() == Task.STATUS.COMPLETED) {
@@ -129,13 +136,19 @@ public abstract class AbstractProcess<T extends Aggregate> {
         return false;
     }
 
+    private String currentEntered;
+
+    public String getCurrentEntered() {
+        return this.currentEntered;
+    }
 
     public boolean invoke(String state) {
+        this.currentEntered = state;
         pendingTask = getTask(state);
         return (pendingTask != null);
     }
 
-    public abstract Task<? extends T> getTask(String state);
+    protected abstract Task<? extends T> getTask(String state);
 
 
 }
