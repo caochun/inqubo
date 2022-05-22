@@ -12,24 +12,23 @@ import java.lang.reflect.Field;
 @Route("")
 public class BidView extends VerticalLayout {
 
-    Bid bid = new Bid();
     private BeanValidationBinder<Bid> binder =  new BeanValidationBinder<Bid>(Bid.class);
 
 
     public BidView() {
         FormLayout formLayout = new FormLayout();
 
-        Field[] fields = bid.getClass().getDeclaredFields();
+        Field[] fields = Bid.class.getDeclaredFields();
 
         for (Field field:
              fields) {
-            if (field.getType().getName().startsWith("java")|| field.getType().equals("boolean")){
+            if (field.getType().getName().startsWith("java")|| field.getType().getName().equals("boolean")){
                 TextField textField = new TextField(field.getName());
                 binder.forField(textField).bind(field.getName());
                 formLayout.add(textField);
             }else{
 
-                for (Field f:field.getClass().getDeclaredFields()
+                for (Field f:field.getDeclaringClass().getDeclaredFields()
                      ) {
                     TextField textField = new TextField(f.getName());
                     binder.forField(textField).bind(f.getName());
